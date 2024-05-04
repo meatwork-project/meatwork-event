@@ -7,6 +7,7 @@
         <groupId>com.meatwork</groupId>
         <artifactId>meatwork</artifactId>
         <version>${revision}</version>
+        <relativePath>../pom.xml</relativePath>
     </parent>
 
     <artifactId>meatwork-event</artifactId>
