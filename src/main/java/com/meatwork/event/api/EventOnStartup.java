@@ -3,18 +3,20 @@ package com.meatwork.event.api;
 import com.meatwork.core.api.di.CDI;
 import com.meatwork.core.api.di.Service;
 import com.meatwork.core.api.service.ApplicationStartup;
+import com.meatwork.core.api.service.MeatworkApplication;
 import com.meatwork.event.internal.Event;
 import com.meatwork.event.internal.EventGraph;
+import org.reflections.Reflections;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
-import java.util.List;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Set;
 import java.util.function.Consumer;
-import org.reflections.Reflections;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /*
  * Copyright (c) 2016 Taliro.
@@ -26,8 +28,15 @@ public class EventOnStartup implements ApplicationStartup {
     private static final Logger LOGGER = LoggerFactory.getLogger(EventOnStartup.class);
 
     @Override
-    public void run(String[] args) throws Exception {
-        List<String> list = ModuleLayer.boot().modules().stream().flatMap(it -> it.getPackages().stream()).toList();
+    public void run(Class<?> applicationCls, String[] args) {
+
+        MeatworkApplication annotation = applicationCls.getAnnotation(MeatworkApplication.class);
+        if (annotation == null) {
+            LOGGER.error("No MeatworkApplication annotation found for main class {}", applicationCls.getName());
+            throw new RuntimeException("No MeatworkApplication annotation found for main class " + applicationCls.getName());
+        }
+        var list = new ArrayList<>(Arrays.asList(annotation.packages()));
+        list.add("com.meatwork");
         Reflections reflections = new Reflections(list);
         Set<Class<?>> subTypesOf = reflections.getTypesAnnotatedWith(Service.class);
         for (Class<?> aClass : subTypesOf) {

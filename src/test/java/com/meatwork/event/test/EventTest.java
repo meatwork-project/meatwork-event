@@ -29,7 +29,7 @@ public class EventTest {
 
 	@Test
 	public void testEventIsSaved() throws Exception {
-		new EventOnStartup().run(null);
+		new EventOnStartup().run(ApplicationMock.class, null);
 		Event event = EventGraph.get(TotoEvent.class.getName());
 		Assertions.assertNotNull(event);
 	}
